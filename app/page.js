@@ -1,65 +1,87 @@
-import Image from "next/image";
+'use client'
+import React from 'react'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { ArrowRight, Sparkles, Box, Layout } from 'lucide-react'
 
-export default function Home() {
+/**
+ * Landing Page - Premium Hero Section
+ */
+export default function LandingPage() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-background overflow-hidden px-4">
+      {/* Decorative Background Elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 blur-[120px] rounded-full pointer-events-none" />
+
+      {/* Main Content */}
+      <main className="relative z-10 max-w-5xl w-full text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-float">
+            <Sparkles className="w-4 h-4 text-accent" />
+            <span className="text-xs font-semibold tracking-wider uppercase opacity-80">Next-Gen Interior Design</span>
+          </div>
+
+          <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tight leading-[1.1]">
+            Design Your <br />
+            <span className="text-gradient">Dream Space.</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+
+          <p className="text-lg md:text-xl opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed">
+            Experience the future of room planning. Interactive 3D environments, 
+            data-driven layouts, and a premium interface designed for the next generation.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/spaces">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="group flex items-center gap-2 px-10 py-5 bg-gradient rounded-2xl font-bold text-lg shadow-lg shadow-primary/20 transition-all cursor-pointer"
+              >
+                Start Designing
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </motion.button>
+            </Link>
+            
+            <button className="px-10 py-5 glass rounded-2xl font-bold text-lg hover:bg-white/5 transition-colors cursor-pointer">
+              View Gallery
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Feature Grid Segment */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5, duration: 1 }}
+          className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          <div className="p-8 glass rounded-3xl text-left hover:border-primary/50 transition-colors">
+            <Box className="w-8 h-8 text-primary mb-4" />
+            <h3 className="text-xl font-bold mb-2">Real-time 3D</h3>
+            <p className="text-sm opacity-50">Fully interactive environments powered by React Three Fiber.</p>
+          </div>
+          <div className="p-8 glass rounded-3xl text-left hover:border-secondary/50 transition-colors">
+            <Layout className="w-8 h-8 text-secondary mb-4" />
+            <h3 className="text-xl font-bold mb-2">Modular Assets</h3>
+            <p className="text-sm opacity-50">Choose from a library of curated, high-fidelity furniture pieces.</p>
+          </div>
+          <div className="p-8 glass rounded-3xl text-left hover:border-accent/50 transition-colors">
+            <Sparkles className="w-8 h-8 text-accent mb-4" />
+            <h3 className="text-xl font-bold mb-2">AI-Ready</h3>
+            <p className="text-sm opacity-50">Built-in configuration engine for smart layout suggestions.</p>
+          </div>
+        </motion.div>
       </main>
+
+      <footer className="absolute bottom-8 left-0 w-full text-center px-4">
+        <p className="text-xs opacity-30 font-medium tracking-widest uppercase">Room Decor &copy; 2026 • Advanced Coding Lab</p>
+      </footer>
     </div>
-  );
+  )
 }
