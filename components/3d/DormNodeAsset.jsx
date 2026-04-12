@@ -1,10 +1,13 @@
 'use client'
 import React, { useMemo } from 'react'
 import { Clone, useGLTF } from '@react-three/drei'
+import * as THREE from 'three'
 
-const DORM_MODEL_PATH = '/Dorm-Room-transformed.glb'
 
-export function DormNodeAsset({ nodeName, nodeNames }) {
+const DORM_MODEL_PATH = '/models/rooms/Dorm-Room-transformed.glb'
+
+
+export function DormNodeAsset({ nodeName, nodeNames, color }) {
   const { scene } = useGLTF(DORM_MODEL_PATH)
 
   const names = useMemo(() => {
@@ -29,13 +32,18 @@ export function DormNodeAsset({ nodeName, nodeNames }) {
             if (node.isMesh) {
               node.castShadow = true
               node.receiveShadow = true
+              if (color) {
+                node.material = node.material.clone()
+                node.material.color = new THREE.Color(color)
+              }
             }
           })
           return { name, object: next }
         })
         .filter(Boolean),
-    [scene, names]
+    [scene, names, color]
   )
+
 
   if (!clonedObjects.length) return null
 

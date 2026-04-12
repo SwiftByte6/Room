@@ -8,7 +8,8 @@ import React from 'react'
 import { useGLTF } from '@react-three/drei'
 
 export function Model(props) {
-  const { nodes, materials } = useGLTF('/Dorm-Room-transformed.glb')
+  const { nodes, materials } = useGLTF('/models/rooms/Dorm-Room-transformed.glb')
+
   return (
     <group {...props} dispose={null}>
       <mesh castShadow receiveShadow geometry={nodes['(Cycles)_Emissive_Planes'].geometry} material={materials.PaletteMaterial001} position={[-1.33, 1.3, 3.356]} rotation={[Math.PI / 2, 0, 0]} />
@@ -143,4 +144,5 @@ export function Model(props) {
   )
 }
 
-useGLTF.preload('/Dorm-Room-transformed.glb')
+useGLTF.preload('/models/rooms/Dorm-Room-transformed.glb')
+

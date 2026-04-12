@@ -6,11 +6,12 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import Scene from '@/components/Scene'
 import Sidebar from '@/components/Sidebar'
 import { getSpaceById } from '@/lib/data/rooms'
+import { useEditorStore } from '@/lib/store'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowLeft, Maximize2, Share2, Save } from 'lucide-react'
 import Link from 'next/link'
 
-const DORM_MODEL_PATH = '/Dorm-Room-transformed.glb';
+const DORM_MODEL_PATH = '/models/rooms/Dorm-Room-transformed.glb';
 let dormTemplateCache = null;
 
 const formatDormLabel = (name) => {
@@ -93,16 +94,29 @@ export default function SpacePlannerPage() {
   const isDormSpace = Boolean(space?.autoPopulateDormItems);
   const defaultCameraView = space?.defaultCameraView || 'isometric';
 
-  const [items, setItems] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
+  // State from Store
+  const { 
+    getRoomData,
+    setItems, 
+    addItem, 
+    updateItem, 
+    removeItem, 
+    selectedId, 
+    setSelectedId,
+    updateRoomConfig,
+  } = useEditorStore();
+
+  const { items, roomConfig } = useMemo(() => getRoomData(params.id), [getRoomData, params.id]); // Removed 'items' dependency to fix initialization error
+
+
   const [cameraView, setCameraView] = useState(defaultCameraView);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [roomConfig, setRoomConfig] = useState({
-    wallColor: '#ffffff',
-    floorColor: '#e5e7eb',
-    roughness: 0.8,
-    scale: 1,
-  });
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Rehydration check for Next.js
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   // Handle invalid space IDs
   useEffect(() => {
@@ -115,8 +129,13 @@ export default function SpacePlannerPage() {
     return () => clearTimeout(timer);
   }, [space, router]);
 
+  // Load Dorm Room Templates if needed
   useEffect(() => {
-    if (!isDormSpace) return;
+    if (!isDormSpace || !isHydrated) return;
+    
+    // If we already have items (e.g. from persistence), don't reload defaults
+    const currentItems = getRoomData(params.id).items;
+    if (currentItems.length > 0 && currentItems.some(i => i.id.startsWith('dorm-'))) return;
 
     let isMounted = true;
 
@@ -124,13 +143,10 @@ export default function SpacePlannerPage() {
       const cachedItems = cloneDormTemplates(dormTemplateCache);
       queueMicrotask(() => {
         if (!isMounted) return;
-        setItems(cachedItems);
+        setItems(params.id, cachedItems);
         setSelectedId(cachedItems[0]?.id ?? null);
       });
-
-      return () => {
-        isMounted = false;
-      };
+      return () => { isMounted = false; };
     }
 
     const loader = new GLTFLoader();
@@ -142,19 +158,16 @@ export default function SpacePlannerPage() {
       DORM_MODEL_PATH,
       (gltf) => {
         if (!isMounted) return;
-
         const templates = toDormTemplates(gltf.scene.children);
         dormTemplateCache = templates;
         const dormItems = cloneDormTemplates(templates);
-
-        setItems(dormItems);
+        setItems(params.id, dormItems);
         setSelectedId(dormItems[0]?.id ?? null);
       },
       undefined,
       () => {
         if (!isMounted) return;
-        setItems([]);
-        setSelectedId(null);
+        setItems(params.id, []);
       }
     );
 
@@ -162,41 +175,13 @@ export default function SpacePlannerPage() {
       isMounted = false;
       dracoLoader.dispose();
     };
-  }, [space?.id, isDormSpace]);
-
-  const addItem = useCallback((type) => {
-    if (isDormSpace) return;
-
-    const newItem = {
-      id: `${type}-${Date.now()}`,
-      type,
-      position: [0, 0, 0],
-      rotation: [0, 0, 0],
-    };
-    setItems((prev) => [...prev, newItem]);
-    setSelectedId(newItem.id);
-  }, [isDormSpace]);
-
-  const removeItem = useCallback((id) => {
-    setItems((prev) => prev.filter((item) => item.id !== id || item.isLocked));
-    setSelectedId((prev) => (prev === id ? null : prev));
-  }, []);
-
-  const updateItem = useCallback((id, updates) => {
-    setItems((prev) => 
-      prev.map((item) => {
-        if (item.id !== id) return item;
-        if (item.isLocked) return item;
-        return { ...item, ...updates };
-      })
-    );
-  }, []);
+  }, [params?.id, isDormSpace, isHydrated]); 
 
   const handleSaveLayout = useCallback(() => {
-    alert('Layout Saved Successfully!');
+    alert('Layout Synced to Local Storage!');
   }, []);
 
-  if (!space) return null;
+  if (!space || !isHydrated) return null;
 
   return (
     <div className="flex w-screen h-screen bg-background overflow-hidden relative font-sans antialiased text-foreground">
@@ -269,14 +254,6 @@ export default function SpacePlannerPage() {
       {/* Main UI Layout */}
       <Sidebar 
         space={space}
-        items={items} 
-        addItem={addItem} 
-        removeItem={removeItem} 
-        updateItem={updateItem}
-        selectedId={selectedId}
-        onSelect={setSelectedId}
-        roomConfig={roomConfig}
-        setRoomConfig={setRoomConfig}
         cameraView={cameraView}
         setCameraView={setCameraView}
       />
@@ -284,12 +261,6 @@ export default function SpacePlannerPage() {
       <section className="flex-1 relative">
         <Scene 
           space={space}
-          items={items} 
-          updateItem={updateItem}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          removeItem={removeItem}
-          roomConfig={roomConfig}
           cameraView={cameraView}
         />
       </section>

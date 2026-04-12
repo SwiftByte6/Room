@@ -2,86 +2,138 @@
 import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles, Box, Layout } from 'lucide-react'
+import { ArrowRight, Sparkles, Box, Layout, Gamepad2, Search } from 'lucide-react'
+import Image from 'next/image'
 
 /**
- * Landing Page - Premium Hero Section
+ * Landing Page - Playful Neo-Brutalism Aesthetic
  */
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-background overflow-hidden px-4">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-secondary/20 blur-[120px] rounded-full pointer-events-none" />
+    <div className="relative min-h-screen flex flex-col items-center bg-neo-yellow bg-grid-magenta overflow-hidden px-4 py-8 text-black selection:bg-black selection:text-white">
+      
+      {/* Navigation Bar */}
+      <nav className="relative z-50 w-full max-w-6xl flex items-center justify-between mb-20">
+         <div className="bg-gradient-to-br from-pink-500 to-purple-500 p-3 rounded-2xl neo-border neo-shadow-sm">
+            <Gamepad2 className="w-8 h-8 text-white" />
+         </div>
+         
+         <div className="hidden md:flex items-center gap-8 font-game uppercase text-sm tracking-widest">
+            <span className="cursor-pointer hover:underline decoration-4 underline-offset-8 decoration-purple-500">All spaces</span>
+            <span className="cursor-pointer opacity-40 hover:opacity-100 transition-opacity">Isometric</span>
+            <span className="cursor-pointer opacity-40 hover:opacity-100 transition-opacity">Creative</span>
+            <span className="cursor-pointer opacity-40 hover:opacity-100 transition-opacity">Minimal</span>
+         </div>
 
-      {/* Main Content */}
-      <main className="relative z-10 max-w-5xl w-full text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-8 animate-float">
-            <Sparkles className="w-4 h-4 text-accent" />
-            <span className="text-xs font-semibold tracking-wider uppercase opacity-80">Next-Gen Interior Design</span>
-          </div>
+         <div className="flex items-center gap-4">
+            <div className="hidden sm:flex bg-white neo-border px-4 py-2 items-center gap-3 neo-shadow-sm">
+               <input type="text" placeholder="Search" className="bg-transparent outline-none w-24 font-bold text-xs" />
+               <Search className="w-4 h-4" />
+            </div>
+         </div>
+      </nav>
 
-          <h1 className="text-6xl md:text-8xl font-black mb-6 tracking-tight leading-[1.1]">
-            Design Your <br />
-            <span className="text-gradient">Dream Space.</span>
-          </h1>
-
-          <p className="text-lg md:text-xl opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed">
-            Experience the future of room planning. Interactive 3D environments, 
-            data-driven layouts, and a premium interface designed for the next generation.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/spaces">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="group flex items-center gap-2 px-10 py-5 bg-gradient rounded-2xl font-bold text-lg shadow-lg shadow-primary/20 transition-all cursor-pointer"
-              >
-                Start Designing
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </motion.button>
-            </Link>
-            
-            <button className="px-10 py-5 glass rounded-2xl font-bold text-lg hover:bg-white/5 transition-colors cursor-pointer">
-              View Gallery
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Feature Grid Segment */}
+      {/* Hero Section */}
+      <main className="relative z-10 max-w-5xl w-full flex flex-col items-center">
+        
+        {/* Floating Illustrative Assets */}
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1 }}
-          className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6"
+          animate={{ y: [0, -15, 0], rotate: [0, 5, 0] }}
+          transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+          className="absolute -top-12 -left-12 drop-shadow-[10px_10px_0px_#000] hidden lg:block"
         >
-          <div className="p-8 glass rounded-3xl text-left hover:border-primary/50 transition-colors">
-            <Box className="w-8 h-8 text-primary mb-4" />
-            <h3 className="text-xl font-bold mb-2">Real-time 3D</h3>
-            <p className="text-sm opacity-50">Fully interactive environments powered by React Three Fiber.</p>
-          </div>
-          <div className="p-8 glass rounded-3xl text-left hover:border-secondary/50 transition-colors">
-            <Layout className="w-8 h-8 text-secondary mb-4" />
-            <h3 className="text-xl font-bold mb-2">Modular Assets</h3>
-            <p className="text-sm opacity-50">Choose from a library of curated, high-fidelity furniture pieces.</p>
-          </div>
-          <div className="p-8 glass rounded-3xl text-left hover:border-accent/50 transition-colors">
-            <Sparkles className="w-8 h-8 text-accent mb-4" />
-            <h3 className="text-xl font-bold mb-2">AI-Ready</h3>
-            <p className="text-sm opacity-50">Built-in configuration engine for smart layout suggestions.</p>
+          <Image 
+            src="/images/stickers/controller.png" 
+            width={180} height={180} alt="Playful Controller" 
+          />
+        </motion.div>
+
+        <motion.div 
+          animate={{ y: [0, 15, 0], rotate: [0, -8, 0] }}
+          transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+          className="absolute top-0 -right-8 drop-shadow-[10px_10px_0px_#000] hidden lg:block"
+        >
+          <Image 
+            src="/images/stickers/soccer.png" 
+            width={120} height={120} alt="Soccer Ball" 
+          />
+        </motion.div>
+
+
+        {/* Title Block */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="relative text-center mb-24"
+        >
+          <h1 className="text-7xl md:text-[9rem] font-black leading-none uppercase tracking-tighter mb-4 flex flex-col items-center">
+            <span className="text-purple-600 drop-shadow-[10px_10px_0px_#000] text-stroke">Let The</span>
+            <div className="bg-[#4ADE80] neo-border neo-shadow px-10 py-4 rotate-[-2deg] my-4 leading-none">
+               <span className="text-white">Game</span>
+            </div>
+            <span className="text-purple-600 drop-shadow-[10px_10px_0px_#000] text-stroke">Begin</span>
+          </h1>
+          
+          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-full max-w-sm">
+             <div className="bg-purple-600 text-white px-8 py-4 neo-border neo-shadow font-game uppercase text-xs tracking-widest leading-relaxed">
+                Design the ultimate environment. 3D visualization meets playful creativity.
+             </div>
           </div>
         </motion.div>
+
+        {/* CTA Section */}
+        <div className="mt-32 w-full bg-[#7C3AED] neo-border neo-shadow p-10 rounded-[2rem] flex flex-col items-center relative gap-8">
+           <div className="absolute -top-6 left-10 bg-yellow-400 neo-border neo-shadow-sm px-6 py-2 font-game uppercase text-xs">
+              Most Popular Spaces
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+              {[
+                { name: 'Minimalist Studio', type: 'Studio', color: 'bg-blue-400', id: 'minimalist-studio' },
+                { name: 'Dorm Room', type: 'Dorm', color: 'bg-orange-400', id: 'dorm-room' },
+                { name: 'Future Lab', type: 'Modern', color: 'bg-green-400', id: 'lab' },
+              ].map((item, i) => (
+                <Link key={i} href={item.id === 'lab' ? '/spaces' : `/spaces/${item.id}`}>
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-white neo-border neo-shadow-sm p-4 cursor-pointer group"
+                  >
+                    <div className={`${item.color} h-48 mb-4 neo-border relative overflow-hidden flex items-center justify-center p-8`}>
+                       <Box className="w-16 h-16 text-white group-hover:scale-125 transition-transform" />
+                       <div className="absolute top-2 left-2 bg-white/20 backdrop-blur-sm px-3 py-1 text-[10px] font-black uppercase text-white">Next-Gen v1</div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                       <div>
+                          <h3 className="font-game text-sm uppercase">{item.name}</h3>
+                          <span className="text-[10px] opacity-40 uppercase font-black">{item.type} Space</span>
+                       </div>
+                       <div className="bg-black text-white p-2">
+                          <ArrowRight className="w-4 h-4" />
+                       </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              ))}
+           </div>
+
+           <Link href="/spaces">
+             <button className="bg-[#4ADE80] px-10 py-5 neo-border neo-shadow font-game uppercase tracking-[0.2em] hover:translate-y-1 hover:shadow-none transition-all cursor-pointer">
+                Enter All Environments
+             </button>
+           </Link>
+        </div>
+
+        {/* Bottom Decorative Section */}
+        <div className="mt-20 flex gap-20 items-center opacity-40">
+           <span className="font-game text-lg uppercase tracking-widest text-[#EC4899]">Retro Logic</span>
+           <span className="font-game text-lg uppercase tracking-widest text-[#3B82F6]">3D Rendering</span>
+           <span className="font-game text-lg uppercase tracking-widest text-[#8B5CF6]">Gen-Z Lab</span>
+        </div>
       </main>
 
-      <footer className="absolute bottom-8 left-0 w-full text-center px-4">
-        <p className="text-xs opacity-30 font-medium tracking-widest uppercase">Room Decor &copy; 2026 • Advanced Coding Lab</p>
+      <footer className="mt-20 py-10 opacity-20 font-game uppercase text-[10px] tracking-[0.4em]">
+        Interior Designer &copy; 2026 • Interactive Visuals Lab
       </footer>
     </div>
   )
-}
+}

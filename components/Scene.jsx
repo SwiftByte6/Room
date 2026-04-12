@@ -1,5 +1,5 @@
 'use client'
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Environment, ContactShadows, Grid, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
@@ -7,12 +7,23 @@ import { StaticRoom } from './Room'
 import { MovableItem } from './3d/MovableItem'
 import { ITEM_COMPONENTS, AVAILABLE_ITEMS } from './3d/Furniture'
 import { DormNodeAsset } from './3d/DormNodeAsset'
+import { useEditorStore } from '@/lib/store'
 
 /**
  * Scene - The main 3D environment for the Room Planner.
  * @param {object} space - The configuration for the current room.
  */
-export default function Scene({ space, items, updateItem, selectedId, onSelect, removeItem, roomConfig, cameraView }) {
+export default function Scene({ space, cameraView }) {
+  const { 
+    getRoomData,
+    updateItem, 
+    selectedId, 
+    setSelectedId, 
+    removeItem, 
+  } = useEditorStore();
+
+  const { items, roomConfig } = getRoomData(space.id);
+
   const [isSpacePressed, setIsSpacePressed] = useState(false)
   
   const viewPresets = {
@@ -28,29 +39,26 @@ export default function Scene({ space, items, updateItem, selectedId, onSelect, 
     const handleKeyDown = (e) => {
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedId) {
         if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-          removeItem(selectedId);
+          removeItem(space.id, selectedId);
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedId, removeItem]);
+  }, [selectedId, removeItem, space.id]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.code === 'Space') {
-        // Prevent page scroll while using Blender-style camera navigation.
         e.preventDefault();
         setIsSpacePressed(true);
       }
     };
-
     const handleKeyUp = (e) => {
       if (e.code === 'Space') {
         setIsSpacePressed(false);
       }
     };
-
     window.addEventListener('keydown', handleKeyDown, { passive: false });
     window.addEventListener('keyup', handleKeyUp);
     return () => {
@@ -59,18 +67,50 @@ export default function Scene({ space, items, updateItem, selectedId, onSelect, 
     };
   }, []);
 
+  const lightingSettings = useMemo(() => {
+    switch (roomConfig.lighting) {
+      case 'day':
+        return {
+          preset: 'sunset',
+          ambient: 0.8,
+          directional: 1.5,
+          color: '#ffffff',
+          position: [10, 10, 5],
+        };
+      case 'night':
+        return {
+          preset: 'night',
+          ambient: 0.2,
+          directional: 0.4,
+          color: '#3b82f6',
+          position: [-5, 5, -5],
+        };
+      case 'neutral':
+      default:
+        return {
+          preset: 'city',
+          ambient: 0.7,
+          directional: 1.2,
+          color: '#ffffff',
+          position: [10, 10, 5],
+        };
+    }
+  }, [roomConfig.lighting]);
+
   return (
     <div className="w-full h-full bg-background relative">
       <Canvas shadows camera={{ position: currentView.pos, fov: currentView.fov }}>
         <Suspense fallback={null}>
-          <Environment preset="city" />
-          <ambientLight intensity={0.7} />
+          <Environment preset={lightingSettings.preset} />
+          <ambientLight intensity={lightingSettings.ambient} />
           <directionalLight
-            position={[10, 10, 5]}
-            intensity={1.2}
+            position={lightingSettings.position}
+            intensity={lightingSettings.directional}
+            color={lightingSettings.color}
             castShadow
             shadow-mapSize={[2048, 2048]}
           />
+
 
           <OrbitControls
             makeDefault
@@ -129,7 +169,11 @@ export default function Scene({ space, items, updateItem, selectedId, onSelect, 
                   position={item.position}
                   rotation={item.rotation}
                 >
-                  <DormNodeAsset nodeName={item.nodeName} nodeNames={item.nodeNames} />
+                  <DormNodeAsset 
+                    nodeName={item.nodeName} 
+                    nodeNames={item.nodeNames} 
+                    color={item.color}
+                  />
                 </group>
               );
             }
@@ -140,18 +184,24 @@ export default function Scene({ space, items, updateItem, selectedId, onSelect, 
                 initialPosition={item.position}
                 initialRotation={item.rotation}
                 isSelected={selectedId === item.id}
-                onSelect={() => onSelect(item.id)}
-                onUpdate={(updates) => updateItem(item.id, updates)}
+                onSelect={() => setSelectedId(item.id)}
+                onUpdate={(updates) => updateItem(space.id, item.id, updates)}
                 bounds={space.bounds}
                 snap={0.25}
               >
                 {isDormItem ? (
-                  <DormNodeAsset nodeName={item.nodeName} nodeNames={item.nodeNames} />
+                  <DormNodeAsset 
+                    nodeName={item.nodeName} 
+                    nodeNames={item.nodeNames} 
+                    color={item.color}
+                  />
                 ) : (
                   <FurnitureComponent 
-                    scale={itemMeta?.defaultScale ?? 1} 
+                    scale={item.scale} 
+                    color={item.color}
                   />
                 )}
+
               </MovableItem>
             );
           })}
