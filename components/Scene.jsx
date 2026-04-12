@@ -1,38 +1,163 @@
 'use client'
-import React, { Suspense, useEffect, useState, useMemo } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { Environment, ContactShadows, Grid, OrbitControls } from '@react-three/drei'
+import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { ContactShadows, Grid, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import { StaticRoom } from './Room'
 import { MovableItem } from './3d/MovableItem'
-import { ITEM_COMPONENTS, AVAILABLE_ITEMS } from './3d/Furniture'
+import { ITEM_COMPONENTS } from './3d/Furniture'
 import { DormNodeAsset } from './3d/DormNodeAsset'
 import { useEditorStore } from '@/lib/store'
+
+function CameraSync({ view, cameraView, fov }) {
+  const { camera, controls } = useThree()
+  const manInitializedRef = useRef(false)
+
+  useEffect(() => {
+    const activeFov = fov || view.fov
+
+    camera.fov = activeFov
+
+    if (cameraView === 'man') {
+      if (!manInitializedRef.current) {
+        camera.position.set(0, 1.65, 4.5)
+        camera.rotation.set(0, Math.PI, 0)
+        if (controls?.target) {
+          controls.target.set(0, 1.5, 0)
+          controls.update()
+        }
+        manInitializedRef.current = true
+      }
+    } else {
+      manInitializedRef.current = false
+      camera.position.set(...view.pos)
+      if (controls?.target) {
+        controls.target.set(0, 0, 0)
+        controls.update()
+      }
+      camera.lookAt(0, 0, 0)
+    }
+
+    camera.updateProjectionMatrix()
+
+  }, [camera, controls, cameraView, fov, view])
+
+  return null
+}
+
+function FreeMoveControls({ enabled, bounds }) {
+  const { camera } = useThree()
+  const keysRef = useRef({})
+  const initializedRef = useRef(false)
+  const yawRef = useRef(0)
+  const pitchRef = useRef(0)
+
+  useEffect(() => {
+    if (!enabled) {
+      initializedRef.current = false
+      return
+    }
+
+    camera.rotation.order = 'YXZ'
+    yawRef.current = camera.rotation.y
+    pitchRef.current = camera.rotation.x
+    initializedRef.current = true
+  }, [camera, enabled])
+
+  useEffect(() => {
+    if (!enabled) return undefined
+
+    const handleKeyDown = (event) => {
+      if (['INPUT', 'TEXTAREA'].includes(event.target?.tagName) || event.target?.isContentEditable) return
+      keysRef.current[event.code] = true
+    }
+
+    const handleKeyUp = (event) => {
+      keysRef.current[event.code] = false
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [enabled])
+
+  useFrame((_, delta) => {
+    if (!enabled || !initializedRef.current) return
+
+    const keys = keysRef.current
+    const moveSpeed = (keys.ShiftLeft || keys.ShiftRight ? 9 : 5) * delta
+    const turnSpeed = 1.5 * delta
+
+    if (keys.ArrowLeft) yawRef.current += turnSpeed
+    if (keys.ArrowRight) yawRef.current -= turnSpeed
+    if (keys.ArrowUp) pitchRef.current += turnSpeed * 0.8
+    if (keys.ArrowDown) pitchRef.current -= turnSpeed * 0.8
+
+    pitchRef.current = THREE.MathUtils.clamp(pitchRef.current, -1.15, 1.15)
+
+    const forward = new THREE.Vector3(-Math.sin(yawRef.current), 0, -Math.cos(yawRef.current))
+    const right = new THREE.Vector3(forward.z, 0, -forward.x).normalize()
+
+    const movement = new THREE.Vector3()
+    if (keys.KeyW) movement.add(forward)
+    if (keys.KeyS) movement.sub(forward)
+    if (keys.KeyD) movement.add(right)
+    if (keys.KeyA) movement.sub(right)
+    if (keys.Space) movement.y += 1
+    if (keys.ControlLeft || keys.ControlRight) movement.y -= 1
+
+    if (movement.lengthSq() > 0) {
+      movement.normalize().multiplyScalar(moveSpeed)
+      camera.position.add(movement)
+
+      if (bounds?.x) {
+        camera.position.x = THREE.MathUtils.clamp(camera.position.x, bounds.x[0], bounds.x[1])
+      }
+      if (bounds?.z) {
+        camera.position.z = THREE.MathUtils.clamp(camera.position.z, bounds.z[0], bounds.z[1])
+      }
+      camera.position.y = THREE.MathUtils.clamp(camera.position.y, 1.45, 2.1)
+    }
+
+    camera.rotation.set(pitchRef.current, yawRef.current, 0)
+    camera.updateProjectionMatrix()
+  })
+
+  return null
+}
 
 /**
  * Scene - The main 3D environment for the Room Planner.
  * @param {object} space - The configuration for the current room.
  */
-export default function Scene({ space, cameraView }) {
-  const { 
+export default function Scene({ space, cameraView, cameraFov }) {
+  const {
     getRoomData,
-    updateItem, 
-    selectedId, 
-    setSelectedId, 
-    removeItem, 
+    updateItem,
+    selectedId,
+    setSelectedId,
+    removeItem,
   } = useEditorStore();
 
   const { items, roomConfig } = getRoomData(space.id);
 
   const [isSpacePressed, setIsSpacePressed] = useState(false)
-  
+
   const viewPresets = {
-    isometric: { pos: space.initialCamera.position, fov: space.initialCamera.fov },
+    isometric: { pos: space.initialCamera.position, fov: cameraFov || space.initialCamera.fov },
     front: { pos: [0, 5, 12], fov: 35 },
     top: { pos: [0, 15, 0], fov: 25 },
+    custom: { pos: space.initialCamera.position, fov: cameraFov || space.initialCamera.fov },
+    man: { pos: space.initialCamera.position, fov: cameraFov || space.initialCamera.fov },
   };
 
   const currentView = viewPresets[cameraView] || viewPresets.isometric;
+  const currentFov = cameraFov || currentView.fov;
+  const isManView = cameraView === 'man';
 
   // Register a global delete key listener for the selected item
   useEffect(() => {
@@ -68,53 +193,108 @@ export default function Scene({ space, cameraView }) {
   }, []);
 
   const lightingSettings = useMemo(() => {
-    switch (roomConfig.lighting) {
-      case 'day':
-        return {
-          preset: 'sunset',
-          ambient: 0.8,
-          directional: 1.5,
-          color: '#ffffff',
-          position: [10, 10, 5],
-        };
-      case 'night':
-        return {
-          preset: 'night',
-          ambient: 0.2,
-          directional: 0.4,
-          color: '#3b82f6',
-          position: [-5, 5, -5],
-        };
-      case 'neutral':
-      default:
-        return {
-          preset: 'city',
-          ambient: 0.7,
-          directional: 1.2,
-          color: '#ffffff',
-          position: [10, 10, 5],
-        };
-    }
-  }, [roomConfig.lighting]);
+    const selectedPreset = roomConfig?.lightingSettings?.preset || roomConfig?.lighting || 'city';
+    const ambientMultiplier = roomConfig?.lightingSettings?.ambient ?? 1;
+    const lightMultiplier = Math.max(0.25, ambientMultiplier);
+
+    const presetMap = {
+      apartment: {
+        background: '#edf4ff',
+        ambient: 0.95,
+        hemisphere: 0.6,
+        directional: 1.8,
+        fill: 0.75,
+        color: '#ffffff',
+        fillColor: '#dbeafe',
+        position: [-10, 10, 5],
+        fillPosition: [8, 6, -4],
+      },
+      city: {
+        background: '#e7edf5',
+        ambient: 0.8,
+        hemisphere: 0.45,
+        directional: 1.35,
+        fill: 0.55,
+        color: '#ffffff',
+        fillColor: '#cbd5e1',
+        position: [-10, 10, 5],
+        fillPosition: [7, 5, -3],
+      },
+      night: {
+        background: '#080b14',
+        ambient: 0.28,
+        hemisphere: 0.24,
+        directional: 0.7,
+        fill: 0.32,
+        color: '#3b82f6',
+        fillColor: '#1d4ed8',
+        position: [-8, 5, -5],
+        fillPosition: [4, 3, 4],
+      },
+      day: {
+        background: '#edf4ff',
+        ambient: 0.95,
+        hemisphere: 0.6,
+        directional: 1.8,
+        fill: 0.75,
+        color: '#ffffff',
+        fillColor: '#dbeafe',
+        position: [-10, 10, 5],
+        fillPosition: [8, 6, -4],
+      },
+      neutral: {
+        background: '#e7edf5',
+        ambient: 0.8,
+        hemisphere: 0.45,
+        directional: 1.35,
+        fill: 0.55,
+        color: '#ffffff',
+        fillColor: '#cbd5e1',
+        position: [-10, 10, 5],
+        fillPosition: [7, 5, -3],
+      },
+    };
+
+    const base = presetMap[selectedPreset] || presetMap.city;
+    return {
+      ...base,
+      ambient: base.ambient * ambientMultiplier,
+      hemisphere: base.hemisphere * ambientMultiplier,
+      directional: base.directional * lightMultiplier,
+      fill: base.fill * lightMultiplier,
+    };
+  }, [roomConfig?.lightingSettings, roomConfig?.lighting]);
 
   return (
     <div className="w-full h-full bg-background relative">
-      <Canvas shadows camera={{ position: currentView.pos, fov: currentView.fov }}>
+      <Canvas shadows camera={{ position: space.initialCamera.position, fov: currentFov }}>
         <Suspense fallback={null}>
-          <Environment preset={lightingSettings.preset} />
+          <CameraSync view={{ ...currentView, fov: currentFov }} cameraView={cameraView} fov={currentFov} />
+          <FreeMoveControls enabled={isManView} bounds={space.bounds} />
+          <color attach="background" args={[lightingSettings.background]} />
           <ambientLight intensity={lightingSettings.ambient} />
+          <hemisphereLight
+            intensity={lightingSettings.hemisphere}
+            color={lightingSettings.color}
+            groundColor="#1f2937"
+          />
           <directionalLight
             position={lightingSettings.position}
             intensity={lightingSettings.directional}
             color={lightingSettings.color}
             castShadow
             shadow-mapSize={[2048, 2048]}
+            shadow-normalBias={0.03}
           />
-
+          <directionalLight
+            position={lightingSettings.fillPosition}
+            intensity={lightingSettings.fill}
+            color={lightingSettings.fillColor}
+          />
 
           <OrbitControls
             makeDefault
-            enabled={isSpacePressed}
+            enabled={!isManView}
             enableDamping
             dampingFactor={0.08}
             target={[0, 0, 0]}
@@ -133,12 +313,12 @@ export default function Scene({ space, cameraView }) {
           )}
 
           {/* Contact Shadows */}
-          <ContactShadows 
-            position={[0, -0.01, 0]} 
-            opacity={0.4} 
-            scale={20} 
-            blur={2} 
-            far={4.5} 
+          <ContactShadows
+            position={[0, -0.01, 0]}
+            opacity={0.4}
+            scale={20}
+            blur={2}
+            far={4.5}
           />
 
           {/* Design Grid */}
@@ -159,7 +339,6 @@ export default function Scene({ space, cameraView }) {
             const isDormItem = Boolean(item.nodeName);
             const isLockedDormStructure = isDormItem && item.isLocked;
             const FurnitureComponent = ITEM_COMPONENTS[item.type];
-            const itemMeta = AVAILABLE_ITEMS.find((entry) => entry.type === item.type);
             if (!isDormItem && !FurnitureComponent) return null;
 
             if (isLockedDormStructure) {
@@ -169,9 +348,9 @@ export default function Scene({ space, cameraView }) {
                   position={item.position}
                   rotation={item.rotation}
                 >
-                  <DormNodeAsset 
-                    nodeName={item.nodeName} 
-                    nodeNames={item.nodeNames} 
+                  <DormNodeAsset
+                    nodeName={item.nodeName}
+                    nodeNames={item.nodeNames}
                     color={item.color}
                   />
                 </group>
@@ -190,18 +369,17 @@ export default function Scene({ space, cameraView }) {
                 snap={0.25}
               >
                 {isDormItem ? (
-                  <DormNodeAsset 
-                    nodeName={item.nodeName} 
-                    nodeNames={item.nodeNames} 
+                  <DormNodeAsset
+                    nodeName={item.nodeName}
+                    nodeNames={item.nodeNames}
                     color={item.color}
                   />
                 ) : (
-                  <FurnitureComponent 
-                    scale={item.scale} 
+                  <FurnitureComponent
+                    scale={item.scale}
                     color={item.color}
                   />
                 )}
-
               </MovableItem>
             );
           })}

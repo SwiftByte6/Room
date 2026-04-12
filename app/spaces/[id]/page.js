@@ -93,6 +93,7 @@ export default function SpacePlannerPage() {
   const space = useMemo(() => getSpaceById(params.id), [params.id]);
   const isDormSpace = Boolean(space?.autoPopulateDormItems);
   const defaultCameraView = space?.defaultCameraView || 'isometric';
+  const defaultCameraFov = space?.initialCamera?.fov || 35;
 
   // State from Store
   const { 
@@ -110,6 +111,7 @@ export default function SpacePlannerPage() {
 
 
   const [cameraView, setCameraView] = useState(defaultCameraView);
+  const [cameraFov, setCameraFov] = useState(defaultCameraFov);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
@@ -256,12 +258,15 @@ export default function SpacePlannerPage() {
         space={space}
         cameraView={cameraView}
         setCameraView={setCameraView}
+        cameraFov={cameraFov}
+        setCameraFov={setCameraFov}
       />
 
       <section className="flex-1 relative">
         <Scene 
           space={space}
           cameraView={cameraView}
+          cameraFov={cameraFov}
         />
       </section>
     </div>

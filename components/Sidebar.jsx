@@ -19,6 +19,20 @@ import {
 
 import { AVAILABLE_ITEMS } from './3d/Furniture'
 
+const FLOOR_TEXTURE_OPTIONS = [
+  { value: 'plain', label: 'Plain' },
+  { value: 'wood', label: 'Wood' },
+  { value: 'marble', label: 'Marble' },
+  { value: 'concrete', label: 'Concrete' },
+]
+
+const WALL_TEXTURE_OPTIONS = [
+  { value: 'plain', label: 'Plain' },
+  { value: 'pattern', label: 'Pattern' },
+  { value: 'bricks', label: 'Bricks' },
+  { value: 'concrete', label: 'Concrete' },
+]
+
 /**
  * Sidebar - The UI for managing items in the 3D Planner.
  * Modern Gen-Z design with glassmorphism and smooth transitions.
@@ -26,7 +40,9 @@ import { AVAILABLE_ITEMS } from './3d/Furniture'
 export default function Sidebar({ 
   space,
   cameraView, 
-  setCameraView 
+  setCameraView,
+  cameraFov,
+  setCameraFov
 }) {
   const { 
     getRoomData,
@@ -149,20 +165,45 @@ export default function Sidebar({
       {/* Viewport Presets */}
       <section className="flex flex-col gap-4">
         <h2 className="text-[10px] uppercase tracking-widest font-black opacity-30">Viewports</h2>
-        <div className="grid grid-cols-3 gap-2">
-          {['isometric', 'front', 'top'].map((view) => (
+        <div className="grid grid-cols-4 gap-2">
+          {[
+            { key: 'custom', label: 'Custom' },
+            { key: 'man', label: 'Man' },
+            { key: 'front', label: 'Front' },
+            { key: 'top', label: 'Top' },
+          ].map((view) => (
             <button
-              key={view}
-              onClick={() => setCameraView(view)}
+              key={view.key}
+              onClick={() => setCameraView(view.key)}
               className={`py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all cursor-pointer ${
-                cameraView === view 
+                cameraView === view.key 
                   ? 'bg-primary text-secondary' 
                   : 'bg-white/5 opacity-40 hover:opacity-100'
               }`}
             >
-              {view}
+              {view.label}
             </button>
           ))}
+        </div>
+
+        <div className="flex flex-col gap-3 pt-2">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Camera Zoom</span>
+            <span className="text-[9px] font-mono text-primary">{cameraFov || 35}fov</span>
+          </div>
+          <input
+            type="range"
+            min="20"
+            max="60"
+            step="1"
+            value={cameraFov || 35}
+            onChange={(e) => setCameraFov(parseInt(e.target.value, 10))}
+            className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-primary"
+          />
+          <div className="flex justify-between text-[8px] font-black uppercase tracking-widest opacity-30">
+            <span>Zoom In</span>
+            <span>Zoom Out</span>
+          </div>
         </div>
       </section>
 
@@ -200,6 +241,40 @@ export default function Sidebar({
       {/* Lighting Settings - Advanced */}
       {!isDormSpace && (
         <section className="mt-auto pt-6 border-t border-white/5 flex flex-col gap-6">
+           <div className="flex flex-col gap-4">
+             <h2 className="text-[10px] uppercase tracking-widest font-black opacity-30">Surface Materials</h2>
+
+             <div className="flex flex-col gap-2">
+               <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Floor Texture</label>
+               <select
+                 value={roomConfig?.floorTexture || 'plain'}
+                 onChange={(e) => updateRoomConfig(space.id, { floorTexture: e.target.value })}
+                 className="w-full p-3 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-wider"
+               >
+                 {FLOOR_TEXTURE_OPTIONS.map((option) => (
+                   <option key={option.value} value={option.value}>
+                     {option.label}
+                   </option>
+                 ))}
+               </select>
+             </div>
+
+             <div className="flex flex-col gap-2">
+               <label className="text-[9px] font-black uppercase tracking-widest opacity-40">Wall Texture</label>
+               <select
+                 value={roomConfig?.wallTexture || 'plain'}
+                 onChange={(e) => updateRoomConfig(space.id, { wallTexture: e.target.value })}
+                 className="w-full p-3 rounded-2xl bg-white/5 border border-white/10 text-[10px] font-black uppercase tracking-wider"
+               >
+                 {WALL_TEXTURE_OPTIONS.map((option) => (
+                   <option key={option.value} value={option.value}>
+                     {option.label}
+                   </option>
+                 ))}
+               </select>
+             </div>
+           </div>
+
            <div className="flex flex-col gap-4">
              <h2 className="text-[10px] uppercase tracking-widest font-black opacity-30">Lighting Environment</h2>
              <div className="flex gap-2">
