@@ -3,6 +3,20 @@ import React, { useMemo } from 'react'
 
 import { motion, AnimatePresence } from 'framer-motion'
 import { useEditorStore } from '@/lib/store'
+import {
+  FaChair,
+  FaCouch,
+  FaSeedling,
+  FaDesktop,
+  FaLaptop,
+  FaGamepad,
+  FaSnowflake,
+  FaBed,
+  FaWindowMaximize,
+  FaLightbulb,
+  FaTable,
+  FaCube,
+} from 'react-icons/fa'
 import { 
   Plus, 
   Trash2, 
@@ -32,6 +46,26 @@ const WALL_TEXTURE_OPTIONS = [
   { value: 'bricks', label: 'Bricks' },
   { value: 'concrete', label: 'Concrete' },
 ]
+
+const FURNITURE_ICON_MAP = {
+  'gaming-chair': FaChair,
+  'bean-bag': FaCouch,
+  plant: FaSeedling,
+  monitor: FaDesktop,
+  'computer-setup': FaLaptop,
+  console: FaGamepad,
+  'desk-full': FaLaptop,
+  'ac-unit': FaSnowflake,
+  'modern-bed': FaBed,
+  'window-blinds': FaWindowMaximize,
+  'blossom-katana': FaCube,
+  'modern-desk-v2': FaLaptop,
+  'ring-light': FaLightbulb,
+  'cloth-curtain': FaWindowMaximize,
+  sofa: FaTable,
+  'normal-lantern-light': FaLightbulb,
+  'light-tube': FaLightbulb,
+}
 
 /**
  * Sidebar - The UI for managing items in the 3D Planner.
@@ -64,7 +98,12 @@ export default function Sidebar({
         icon: item.icon || '📦',
         itemId: item.id,
       }))
-    : AVAILABLE_ITEMS.filter(item => space.availableItems.includes(item.type));
+    : AVAILABLE_ITEMS
+        .filter(item => space.availableItems.includes(item.type))
+        .map((item) => ({
+          ...item,
+          IconComponent: FURNITURE_ICON_MAP[item.type] || FaCube,
+        }));
 
   const selectedItem = useMemo(() => items.find(i => i.id === selectedId), [items, selectedId]);
 
@@ -153,7 +192,7 @@ export default function Sidebar({
              <div className="flex gap-2">
                 <button 
                   onClick={() => removeItem(space.id, selectedId)}
-                  className="flex-1 py-2 text-[9px] font-black uppercase bg-red-500/20 text-red-100 rounded-xl hover:bg-red-500 transition-all font-bold"
+                  className="flex-1 py-2 text-[9px] font-black uppercase bg-red-500/20 text-red-100 rounded-xl hover:bg-red-500 transition-all"
                 >
                    Remove Item
                 </button>
@@ -224,7 +263,11 @@ export default function Sidebar({
                className="group relative flex flex-col items-center gap-3 p-4 bg-white/5 border border-white/5 rounded-3xl hover:bg-primary/10 hover:border-primary/30 transition-all cursor-pointer overflow-hidden"
              >
                 <div className="text-2xl group-hover:scale-125 transition-transform duration-300">
-                  {item.icon}
+                  {item.IconComponent ? (
+                    <item.IconComponent className="w-7 h-7 text-white/90" />
+                  ) : (
+                    item.icon
+                  )}
                 </div>
                 <span className="text-[10px] font-black uppercase tracking-wide opacity-40 group-hover:opacity-100 truncate w-full text-center">
                   {item.label}

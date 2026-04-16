@@ -186,7 +186,7 @@ export default function SpacePlannerPage() {
   if (!space || !isHydrated) return null;
 
   return (
-    <div className="flex w-screen h-screen bg-background overflow-hidden relative font-sans antialiased text-foreground">
+    <div className="flex w-screen h-screen bg-neo-yellow bg-grid-magenta overflow-hidden relative font-game antialiased text-black selection:bg-black selection:text-white">
       {/* Loading Overlay */}
       <AnimatePresence>
         {!isLoaded && (
@@ -194,44 +194,44 @@ export default function SpacePlannerPage() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8 }}
-            className="absolute inset-0 z-[100] bg-background flex flex-col items-center justify-center p-12 text-center"
+            className="absolute inset-0 z-100 bg-neo-yellow bg-grid-magenta flex flex-col items-center justify-center p-12 text-center"
           >
             <motion.div 
               animate={{ rotate: 360 }}
               transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
-              className="w-16 h-16 border-t-2 border-primary rounded-full mb-8 shadow-lg shadow-primary/20"
+              className="w-16 h-16 border-t-4 border-black rounded-full mb-8"
             />
-            <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-gradient">Initialising Lab</h2>
-            <p className="opacity-40 text-xs font-bold uppercase mt-2 tracking-widest">Loading: {space.name}</p>
+            <h2 className="text-3xl font-black uppercase tracking-widest text-purple-600 drop-shadow-[4px_4px_0px_#000]">Initialising Lab</h2>
+            <p className="text-black/60 text-xs font-black uppercase mt-2 tracking-widest">Loading: {space.name}</p>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Top Action Bar */}
-      <div className="absolute top-6 left-6 right-6 z-50 pointer-events-none flex items-center justify-between">
+      <div className="absolute top-6 left-6 right-6 sm:left-100 z-50 pointer-events-none flex items-center justify-between">
         <div className="pointer-events-auto flex gap-4">
           <Link href="/spaces">
-             <button className="flex items-center gap-2 glass px-5 py-3 rounded-2xl hover:bg-white/10 transition-colors">
+             <button className="flex items-center gap-2 bg-white px-5 py-3 rounded-xl neo-border neo-shadow-sm hover:translate-y-0.5 hover:shadow-none transition-all">
                <ArrowLeft className="w-4 h-4" />
-               <span className="text-[10px] font-black uppercase tracking-widest text-foreground/60">Registry</span>
+               <span className="text-[10px] font-black uppercase tracking-widest text-black/70">Registry</span>
              </button>
           </Link>
-          <div className="px-6 py-3 glass rounded-2xl flex flex-col justify-center">
-             <span className="text-[10px] font-black uppercase tracking-[0.15em] text-primary">{space.id}</span>
+          <div className="px-6 py-3 bg-white rounded-xl neo-border neo-shadow-sm flex flex-col justify-center">
+             <span className="text-[10px] font-black uppercase tracking-[0.15em] text-pink-600">{space.id}</span>
              <h2 className="text-xs font-bold whitespace-nowrap">{space.name}</h2>
           </div>
         </div>
 
         <div className="pointer-events-auto flex gap-3">
-           <button className="glass p-3 rounded-2xl hover:bg-white/5 transition-all text-foreground/40 hover:text-foreground">
+           <button className="bg-white p-3 rounded-xl neo-border neo-shadow-sm hover:translate-y-0.5 hover:shadow-none transition-all text-black/60 hover:text-black">
              <Share2 className="w-4 h-4" />
            </button>
-           <button className="glass p-3 rounded-2xl hover:bg-white/5 transition-all text-foreground/40 hover:text-foreground">
+           <button className="bg-white p-3 rounded-xl neo-border neo-shadow-sm hover:translate-y-0.5 hover:shadow-none transition-all text-black/60 hover:text-black">
              <Maximize2 className="w-4 h-4" />
            </button>
            <button 
              onClick={handleSaveLayout}
-             className="bg-primary hover:bg-primary-600 transition-colors flex items-center gap-3 px-6 py-3 rounded-2xl shadow-xl shadow-primary/20"
+             className="bg-[#4ADE80] hover:bg-[#22c55e] transition-colors flex items-center gap-3 px-6 py-3 rounded-xl neo-border neo-shadow-sm"
            >
               <Save className="w-4 h-4" />
               <span className="text-xs font-black uppercase tracking-widest">Store Layout</span>
@@ -240,15 +240,15 @@ export default function SpacePlannerPage() {
       </div>
 
       {/* Interactive Toolbar (Quick Access) */}
-      <div className="absolute left-[400px] bottom-8 z-50 pointer-events-auto filter drop-shadow-2xl">
-         <div className="glass px-6 py-4 rounded-3xl flex items-center gap-8 border-white/5">
+      <div className="absolute left-100 bottom-8 z-50 pointer-events-auto">
+        <div className="bg-white px-6 py-4 rounded-xl flex items-center gap-8 neo-border neo-shadow-sm">
              <div className="flex flex-col gap-0.5">
-                <span className="text-[9px] font-black uppercase tracking-widest opacity-30">Active Entities</span>
-                <span className="text-sm font-black text-accent">{items.length} units</span>
+             <span className="text-[9px] font-black uppercase tracking-widest text-black/40">Active Entities</span>
+             <span className="text-sm font-black text-pink-600">{items.length} units</span>
              </div>
-             <div className="w-px h-8 bg-white/10" />
+           <div className="w-px h-8 bg-black/20" />
              <div className="flex gap-4">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-white/50 animate-pulse">Design System Phase v1</span>
+             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-black/50 animate-pulse">Design System Phase v1</span>
              </div>
          </div>
       </div>

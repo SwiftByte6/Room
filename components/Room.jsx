@@ -72,19 +72,9 @@ export function StaticRoom({ glbPath, config, ...props }) {
           )}
         </group>
 
-        {/* Windows and fixtures (The Bookshelf) */}
-        {nodes.Object_7 && nodes.Object_8 && (
-          <group position={[-2.805, 1.296, -3.86]} scale={0.921}>
-            <mesh geometry={nodes.Object_7.geometry}>
-               <meshStandardMaterial color="#6366F1" roughness={0.4} metalness={0.2} />
-            </mesh>
-            <mesh geometry={nodes.Object_8.geometry}>
-               <meshStandardMaterial color="#1E293B" roughness={0.2} metalness={0.1} />
-            </mesh>
-          </group>
-        )}
+        {/* Bookshelf removed by request */}
       </group>
     </group>
   )
 }
-
+

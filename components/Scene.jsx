@@ -12,9 +12,21 @@ import { useEditorStore } from '@/lib/store'
 function CameraSync({ view, cameraView, fov }) {
   const { camera, controls } = useThree()
   const manInitializedRef = useRef(false)
+  const previousViewRef = useRef(null)
+  const customPoseRef = useRef(null)
+
+  useFrame(() => {
+    if (cameraView !== 'custom') return
+
+    customPoseRef.current = {
+      position: camera.position.clone(),
+      target: controls?.target ? controls.target.clone() : new THREE.Vector3(0, 0, 0),
+    }
+  })
 
   useEffect(() => {
     const activeFov = fov || view.fov
+    const viewChanged = previousViewRef.current !== cameraView
 
     camera.fov = activeFov
 
@@ -28,14 +40,37 @@ function CameraSync({ view, cameraView, fov }) {
         }
         manInitializedRef.current = true
       }
+      previousViewRef.current = cameraView
     } else {
       manInitializedRef.current = false
-      camera.position.set(...view.pos)
-      if (controls?.target) {
-        controls.target.set(0, 0, 0)
-        controls.update()
+
+      if (cameraView === 'custom') {
+        if (viewChanged) {
+          if (customPoseRef.current?.position) {
+            camera.position.copy(customPoseRef.current.position)
+            if (controls?.target) {
+              controls.target.copy(customPoseRef.current.target)
+              controls.update()
+            }
+          } else {
+            camera.position.set(...view.pos)
+            if (controls?.target) {
+              controls.target.set(0, 0, 0)
+              controls.update()
+            }
+            camera.lookAt(0, 0, 0)
+          }
+        }
+      } else if (viewChanged) {
+        camera.position.set(...view.pos)
+        if (controls?.target) {
+          controls.target.set(0, 0, 0)
+          controls.update()
+        }
+        camera.lookAt(0, 0, 0)
       }
-      camera.lookAt(0, 0, 0)
+
+      previousViewRef.current = cameraView
     }
 
     camera.updateProjectionMatrix()
@@ -100,7 +135,7 @@ function FreeMoveControls({ enabled, bounds }) {
     pitchRef.current = THREE.MathUtils.clamp(pitchRef.current, -1.15, 1.15)
 
     const forward = new THREE.Vector3(-Math.sin(yawRef.current), 0, -Math.cos(yawRef.current))
-    const right = new THREE.Vector3(forward.z, 0, -forward.x).normalize()
+    const right = new THREE.Vector3(-forward.z, 0, forward.x).normalize()
 
     const movement = new THREE.Vector3()
     if (keys.KeyW) movement.add(forward)
@@ -294,7 +329,7 @@ export default function Scene({ space, cameraView, cameraFov }) {
 
           <OrbitControls
             makeDefault
-            enabled={!isManView}
+            enabled={!isManView && (cameraView !== 'custom' || isSpacePressed)}
             enableDamping
             dampingFactor={0.08}
             target={[0, 0, 0]}
