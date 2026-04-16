@@ -3,7 +3,7 @@ import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { AVAILABLE_SPACES } from '@/lib/data/rooms'
-import { ArrowLeft, ChevronRight, Layout, Sparkles } from 'lucide-react'
+import { ArrowLeft, ChevronRight, Layout } from 'lucide-react'
 
 /**
  * Space Selection Page - Neo-Brutalist Grid
@@ -19,13 +19,11 @@ export default function SpaceSelectionPage() {
             Back to Hub
           </button>
         </Link>
-        <h1 className="text-6xl md:text-8xl font-black mb-6 uppercase tracking-tighter leading-none">
-          Choose Your <br />
-          <span className="bg-yellow-400 neo-border neo-shadow px-6 py-2 inline-block rotate-[1deg] mt-4">Arena</span>
+        <h1 className="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-none">
+          Select a Scene
         </h1>
-        <p className="font-game uppercase text-sm tracking-widest opacity-60 max-w-xl">
-          Select an environment to start your interactive 3D layout experiment. 
-          Each space features fully modular components.
+        <p className="text-base md:text-lg leading-relaxed opacity-70 max-w-3xl font-medium">
+          Each environment is a self-contained 3D world. Pick one to explore modular components, adjust lighting, and interact with spatial geometry in real time.
         </p>
       </header>
 
@@ -60,7 +58,7 @@ export default function SpaceSelectionPage() {
                     </div>
                     <h2 className="text-2xl font-black uppercase tracking-tight">{space.name}</h2>
                   </div>
-                  <p className="font-game uppercase text-[10px] leading-relaxed opacity-60 mb-8 flex-1">
+                  <p className="text-sm leading-relaxed opacity-70 mb-8 flex-1 font-medium">
                     {space.description}
                   </p>
                   
@@ -81,18 +79,8 @@ export default function SpaceSelectionPage() {
         ))}
       </main>
 
-      <footer className="mt-32 py-12 border-t-4 border-black font-game uppercase text-[10px] tracking-[0.4em] flex flex-col md:flex-row justify-between items-center gap-8">
-        <div className="flex items-center gap-4">
-           <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-yellow-400" />
-           </div>
-           <span>Asset Selection Protocol v1.0.8</span>
-        </div>
-        <div className="flex gap-12 opacity-40">
-           <span className="hover:opacity-100 cursor-pointer">Security</span>
-           <span className="hover:opacity-100 cursor-pointer">Terms</span>
-           <span className="hover:opacity-100 cursor-pointer">Archive</span>
-        </div>
+      <footer className="mt-32 py-12 border-t-4 border-black font-game uppercase text-[10px] tracking-[0.4em] flex items-center justify-center text-center">
+        <span>Built with Three.js + Next.js · Computer Graphics Project 2026 · Interactive Visuals Lab</span>
       </footer>
     </div>
   )

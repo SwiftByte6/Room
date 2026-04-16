@@ -2,7 +2,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Sparkles, Box, Layout, Gamepad2, Search } from 'lucide-react'
+import { ArrowRight, Box, Gamepad2 } from 'lucide-react'
 import Image from 'next/image'
 
 /**
@@ -18,19 +18,9 @@ export default function LandingPage() {
             <Gamepad2 className="w-8 h-8 text-white" />
          </div>
          
-         <div className="hidden md:flex items-center gap-8 font-game uppercase text-sm tracking-widest">
-            <span className="cursor-pointer hover:underline decoration-4 underline-offset-8 decoration-purple-500">All spaces</span>
-            <span className="cursor-pointer opacity-40 hover:opacity-100 transition-opacity">Isometric</span>
-            <span className="cursor-pointer opacity-40 hover:opacity-100 transition-opacity">Creative</span>
-            <span className="cursor-pointer opacity-40 hover:opacity-100 transition-opacity">Minimal</span>
-         </div>
+         
 
-         <div className="flex items-center gap-4">
-            <div className="hidden sm:flex bg-white neo-border px-4 py-2 items-center gap-3 neo-shadow-sm">
-               <input type="text" placeholder="Search" className="bg-transparent outline-none w-24 font-bold text-xs" />
-               <Search className="w-4 h-4" />
-            </div>
-         </div>
+         
       </nav>
 
       {/* Hero Section */}
@@ -64,19 +54,19 @@ export default function LandingPage() {
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative text-center mb-24"
+          className="relative text-center mb-28 w-full max-w-4xl"
         >
-          <h1 className="text-7xl md:text-[9rem] font-black leading-none uppercase tracking-tighter mb-4 flex flex-col items-center">
-            <span className="text-purple-600 drop-shadow-[10px_10px_0px_#000] text-stroke">Let The</span>
-            <div className="bg-[#4ADE80] neo-border neo-shadow px-10 py-4 rotate-[-2deg] my-4 leading-none">
-               <span className="text-white">Game</span>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-black leading-[0.95] tracking-tight mb-4 flex flex-col items-center">
+            <span className="text-purple-600 drop-shadow-[8px_8px_0px_#000] text-stroke">Design Your Space.</span>
+            <div className="bg-[#4ADE80] neo-border neo-shadow px-8 md:px-12 py-4 rotate-[-1.5deg] my-4 leading-[1.05]">
+               <span className="text-white block">In Every</span>
+               <span className="text-white block">Dimension.</span>
             </div>
-            <span className="text-purple-600 drop-shadow-[10px_10px_0px_#000] text-stroke">Begin</span>
           </h1>
           
           <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-full max-w-sm">
-             <div className="bg-purple-600 text-white px-8 py-4 neo-border neo-shadow font-game uppercase text-xs tracking-widest leading-relaxed">
-                Design the ultimate environment. 3D visualization meets playful creativity.
+             <div className="bg-purple-600 text-white px-8 py-4 neo-border neo-shadow text-sm md:text-base leading-relaxed font-semibold">
+               An interactive 3D room visualization engine. Explore modular environments built with real-time rendering and spatial geometry.
              </div>
           </div>
         </motion.div>
@@ -87,13 +77,13 @@ export default function LandingPage() {
               Most Popular Spaces
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 w-full">
               {[
                 { name: 'Minimalist Studio', type: 'Studio', color: 'bg-blue-400', id: 'minimalist-studio' },
-                { name: 'Dorm Room', type: 'Dorm', color: 'bg-orange-400', id: 'dorm-room' },
-                { name: 'Future Lab', type: 'Modern', color: 'bg-green-400', id: 'lab' },
+                { name: 'Dorm Room', type: 'Dorm', color: 'bg-orange-400', id: 'dorm-room' },  
+               
               ].map((item, i) => (
-                <Link key={i} href={item.id === 'lab' ? '/spaces' : `/spaces/${item.id}`}>
+                <Link key={i} href={`/spaces/${item.id}`}>
                   <motion.div 
                     whileHover={{ scale: 1.02 }}
                     className="bg-white neo-border neo-shadow-sm p-4 cursor-pointer group"
@@ -124,16 +114,16 @@ export default function LandingPage() {
         </div>
 
         {/* Bottom Decorative Section */}
-        <div className="mt-20 flex gap-20 items-center opacity-40">
-           <span className="font-game text-lg uppercase tracking-widest text-[#EC4899]">Retro Logic</span>
-           <span className="font-game text-lg uppercase tracking-widest text-[#3B82F6]">3D Rendering</span>
-           <span className="font-game text-lg uppercase tracking-widest text-[#8B5CF6]">Gen-Z Lab</span>
+        <div className="mt-20 flex flex-wrap justify-center gap-8 md:gap-16 items-center opacity-60 text-center">
+           <span className="font-game text-sm md:text-base tracking-wider text-[#EC4899]">Real-time Rendering</span>
+           <span className="font-game text-sm md:text-base tracking-wider text-[#3B82F6]">Spatial Computing</span>
+           <span className="font-game text-sm md:text-base tracking-wider text-[#8B5CF6]">Modular Geometry</span>
         </div>
       </main>
 
-      <footer className="mt-20 py-10 opacity-20 font-game uppercase text-[10px] tracking-[0.4em]">
-        Interior Designer &copy; 2026 • Interactive Visuals Lab
+      <footer className="mt-20 py-10 opacity-30 font-game text-[11px] tracking-[0.12em] text-center">
+        Built with Three.js + Next.js · Computer Graphics Project 2026 · Interactive Visuals Lab
       </footer>
     </div>
   )
-}
+}

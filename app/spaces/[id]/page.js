@@ -223,12 +223,7 @@ export default function SpacePlannerPage() {
         </div>
 
         <div className="pointer-events-auto flex gap-3">
-           <button className="bg-white p-3 rounded-xl neo-border neo-shadow-sm hover:translate-y-0.5 hover:shadow-none transition-all text-black/60 hover:text-black">
-             <Share2 className="w-4 h-4" />
-           </button>
-           <button className="bg-white p-3 rounded-xl neo-border neo-shadow-sm hover:translate-y-0.5 hover:shadow-none transition-all text-black/60 hover:text-black">
-             <Maximize2 className="w-4 h-4" />
-           </button>
+           
            <button 
              onClick={handleSaveLayout}
              className="bg-[#4ADE80] hover:bg-[#22c55e] transition-colors flex items-center gap-3 px-6 py-3 rounded-xl neo-border neo-shadow-sm"

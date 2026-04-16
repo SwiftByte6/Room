@@ -12,7 +12,7 @@ const outfit = Outfit({
 });
 
 export const metadata = {
-  title: "Room Planner Lab",
+  title: "AXON — Interactive 3D Room Planner",
   description: "Next-Gen 3D Interior Design Tool",
 };
 
